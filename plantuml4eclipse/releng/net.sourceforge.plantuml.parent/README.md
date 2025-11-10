@@ -61,7 +61,7 @@ This way, the changes to the update site are published.
 
 ### Update GitHub pages
 
-That is done by a Gradle build script, when you run `./gradlew gitCommitPlantUml4EclipseUpdateSiteToGhPages` in the git repo root directory.
+That is done by a Gradle build script, when you run `./gradlew clean gitCommitPlantUml4EclipseUpdateSiteToGhPages` in the git repo root directory.
 Just check all the changes in the new commit and check if the following steps were successfully done by the build script.
 
 - cloning *gh-pages* branch to `build/gh-pages` directory
