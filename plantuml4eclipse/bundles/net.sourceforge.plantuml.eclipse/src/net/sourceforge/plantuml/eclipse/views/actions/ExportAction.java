@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
-
-import org.eclipse.core.runtime.IPath;
-
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
@@ -45,12 +45,22 @@ public class ExportAction extends DiagramImageAction<Shell> {
 		final FileDialog fDialog = new FileDialog(getContext(), SWT.SAVE);
 		DiagramData diagramData = diagramDataSupplier.get();
 		if (diagramData != null && diagramData.getOriginal() != null) {
-			String sourceDataPath = diagramData.getOriginal().toString();
-
-			String[] pathSegments = sourceDataPath.split(String.valueOf(IPath.SEPARATOR));
-			String filename = pathSegments[pathSegments.length - 1];
-			String filterPath = sourceDataPath.substring(0, sourceDataPath.lastIndexOf(filename));
-			filename = filename.substring(0, filename.lastIndexOf("."));
+			IPath originalDiagramPath = diagramData.getOriginal();
+			String filename = originalDiagramPath.removeFileExtension().lastSegment();
+			IPath parentDirectoryPath = originalDiagramPath.removeLastSegments(1);
+			
+			IContainer folderOrProject = null;
+			String filterPath = null;
+			
+			try {
+				folderOrProject = (IContainer) ResourcesPlugin.getWorkspace().getRoot().findMember(parentDirectoryPath);
+				if (folderOrProject != null && folderOrProject.exists()) {
+					filterPath = folderOrProject.getLocation().toOSString();
+				}
+			} catch (Exception e) {
+				// use defaults if no parent folder can be found
+			}
+			
 			fDialog.setFileName(filename);
 			fDialog.setFilterPath(filterPath);
 		}
